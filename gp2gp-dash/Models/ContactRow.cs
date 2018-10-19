@@ -18,5 +18,8 @@ namespace gp2gp_dash.Models
         public string TheirOperator { get; set; }
         public string TheirGroup { get; set; }
         public string TheirLocation { get; set; }
+        public double FreqMhz { get; set; }
+        public string Mode { get; set; }
+        public string Country { get; set; }
     }
 }

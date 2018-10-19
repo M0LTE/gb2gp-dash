@@ -10,11 +10,7 @@ namespace gp2gp_dash.Controllers
     [ApiController]
     public class RadiosController : ControllerBase
     {
-        static List<RadioState> states = new List<RadioState> {
-            new RadioState{ ID = "HF1", Frequency = 14.234},
-            new RadioState{ ID = "HF2", Frequency = 3.567, LastUpdated = new DateTime(2018,10,19,12,0,0) },
-            new RadioState{ ID = "HFData", Frequency = 18.07},
-        };
+        static List<RadioState> states = new List<RadioState>();
 
         [HttpPost]
         public void PostState([FromBody]List<RadioState> inp)

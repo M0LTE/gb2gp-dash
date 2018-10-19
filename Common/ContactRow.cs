@@ -18,5 +18,6 @@ namespace gp2gp_dash.Common.Models
         public string TheirOperator { get; set; }
         public string TheirGroup { get; set; }
         public string TheirLocation { get; set; }
+        public string Mode { get; set; }
     }
 }

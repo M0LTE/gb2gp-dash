@@ -20,7 +20,7 @@ namespace gp2gp_dash.Controllers
         {
             using (var conn = dbService.GetOpenConnection())
             {
-                conn.Execute("insert into contacts (id, utctime, theircall, ourstation, sentreport, receivedreport, pinlat, pinlon, theiroperator, theirgroup, theirlocation) values (@id, @utctime, @theircall, @ourstation, @sentreport, @receivedreport, @pinlat, @pinlon, @theiroperator, @theirgroup, @theirlocation);", contactRow);
+                conn.Execute("insert into contacts (id, utctime, theircall, ourstation, sentreport, receivedreport, pinlat, pinlon, theiroperator, theirgroup, theirlocation, freqMhz, mode, country) values (@id, @utctime, @theircall, @ourstation, @sentreport, @receivedreport, @pinlat, @pinlon, @theiroperator, @theirgroup, @theirlocation, @freqMhz, @mode, @country);", contactRow);
             }
         }
     }
