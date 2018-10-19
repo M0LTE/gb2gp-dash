@@ -36,7 +36,7 @@ namespace gp2gp_dash.Controllers
         {
             lock (states)
             {
-                return states.Where(rs => rs.LastUpdated.IsYoungerThan(TimeSpan.FromHours(1))).ToList(); ;
+                return states.Where(rs => rs.LastUpdated.IsYoungerThan(TimeSpan.FromHours(0.25))).OrderBy(rs => rs.Frequency).ToList();
             }
         }
     }

@@ -49,7 +49,7 @@ namespace n1mm2web
             }
         }
 
-        static void ProcessDatagram(byte[] msg)
+        static void writedg(byte[] msg)
         {
             try
             {
@@ -65,7 +65,10 @@ namespace n1mm2web
             {
                 Log("Could not write datagram: {0}", ex);
             }
+        }
 
+        static void ProcessDatagram(byte[] msg)
+        {
             if (N1mmRadioInfo.TryParse(msg, out N1mmRadioInfo ri))
             {
                 ProcessRadioInfo(ri);
@@ -73,6 +76,7 @@ namespace n1mm2web
             else if (N1mmXmlContactInfo.TryParse(msg, out N1mmXmlContactInfo ci))
             {
                 ProcessContactAdd(ci);
+                writedg(msg);
             }
             else if (N1mmXmlContactReplace.TryParse(msg, out N1mmXmlContactReplace cr))
             {
@@ -89,8 +93,8 @@ namespace n1mm2web
             RadioState rs = new RadioState
             {
                 LastUpdated = DateTime.Now,
-                Frequency = ri.TXFreq / 100000.0,
-                ID = ri.RadioNr.ToString(),
+                Frequency = Math.Round(ri.TXFreq / 100000.0, 4),
+                ID = ri.StationName,
             };
 
             PostObject(new[] { rs }, "radios");
