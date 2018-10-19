@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using gp2gp_dash.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,9 +15,18 @@ namespace gp2gp_dash
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder();
+
+            if (env.IsDevelopment())
+            { 
+                builder.AddUserSecrets<Startup>();
+            }
+
+            builder.AddEnvironmentVariables();
+
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -32,6 +42,8 @@ namespace gp2gp_dash
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddSingleton(provider => Configuration);
+            services.AddSingleton(typeof(IDbService), typeof(DbService));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -58,11 +70,6 @@ namespace gp2gp_dash
             {
                 await context.Response.WriteAsync("Hello World!");
             });*/
-
-            using (var conn = new SqlConnection("server=gp-dash.database.windows.net;database=gp-dash;user id=gp-dash;password=sflgjhdlfkstB2£;"))
-            {
-                conn.Open();
-            }
         }
     }
 }

@@ -15,22 +15,42 @@
     <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
             integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
             crossorigin=""></script>
-    <script src="~/js/leaflet.ajax.min.js"></script>
+    <script src="~/js/Leaflet.Geodesic.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+
     <style type="text/css">
         body {
-            border:0px;
-            padding:0px;
-            margin:0px;
+            border: 0px;
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
         }
+
         #mapid {
-            height: 100%;
+            height: calc(100% - 50px);
             width: 100%;
+        }
+
+        #bottom {
+            height: 50px;
+            width: 100%;
+            vertical-align:bottom;
+            font-size:32pt;
+            font-family:'Calibri', sans-serif;
+            background-color:black;
+            color:white;
+            font-weight:bold;
         }
     </style>
 </head>
 
 <body>
+
     <div id="mapid"></div>
+    <div id="bottom">Current frequencies: <span id="freqs"></span></div>
+    
     <script>
 
         var mymap = L.map('mapid', {
@@ -38,7 +58,7 @@
             //maxBounds: world,
             maxBoundsViscosity: 1,
             //}).fitWorld();
-        }).setView([/*51.648429, 0.002010*/20, 10], 3);
+        }).setView([/*51.648429, 0.002010*/30, 10], 3);
 
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
             noWrap: true,
@@ -46,7 +66,8 @@
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
                 '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
                 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            id: 'mapbox.streets'
+            //id: 'mapbox.streets'
+            id: 'mapbox.run-bike-hike'
         }).addTo(mymap);
 
         //L.marker([51.5, -0.09]).addTo(mymap).bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
@@ -73,10 +94,41 @@
                 .openOn(mymap);
         }*/
 
-        mymap.on('click', onMapClick);
+        //mymap.on('click', onMapClick);
 
-        var geojsonLayer = new L.GeoJSON.AJAX("foo.geojson");
-        geojsonLayer.addTo(mymap);
+        var geodesicLayer = L.geodesic([], {
+            weight: 1,
+            opacity: 0.5,
+            color: '#ff33ee',
+            steps: 75,
+            wrap: false,
+        });
+        geodesicLayer.addTo(mymap);
+
+        function addLines() {
+            $.getJSON("/api/mapdata", function (data) {
+                geodesicLayer.geoJson(data);
+            });
+        }
+
+        setInterval(addLines, 10000);
+
+        addLines();
+
+        function displayRadioData() {
+            $.getJSON("/api/radios", function (data) {
+                var items = [];
+                $.each(data, function (i) { 
+                    items.push(this.frequency + "MHz");
+                });
+
+                var x = document.getElementById("freqs");
+                x.innerHTML = items.join(", ");
+            });
+        }
+
+        setInterval(displayRadioData, 1000);
+
     </script>
 </body>
 </html>
