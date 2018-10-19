@@ -33,7 +33,7 @@ namespace n1mm2web
             }
             catch (Exception ex)
             {
-                Program.Log("Exception: {0}", ex);
+                //Program.Log("Exception: {0}", ex);
                 contactDelete = null;
                 return false;
             }

@@ -32,7 +32,7 @@ namespace n1mm2web
             }
             catch (Exception ex)
             {
-                Program.Log("Exception: {0}", ex);
+                //Program.Log("Exception: {0}", ex);
                 contactReplace = null;
                 return false;
             }
@@ -68,7 +68,7 @@ namespace n1mm2web
             }
             catch (Exception ex)
             {
-                Program.Log("Exception: {0}", ex);
+                //Program.Log("Exception: {0}", ex);
                 contactInfo = null;
                 return false;
             }

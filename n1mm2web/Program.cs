@@ -93,7 +93,7 @@ namespace n1mm2web
                 ID = ri.RadioNr.ToString(),
             };
 
-            PostObject(new[] { rs });
+            PostObject(new[] { rs }, "radios");
         }
 
         static void ProcessContactDelete(ContactDelete cd)
@@ -101,7 +101,7 @@ namespace n1mm2web
             //throw new NotImplementedException();
         }
 
-        static void PostObject(object cr)
+        static void PostObject(object cr, string controller)
         {
             var cli = new HttpClient();
             var sw = Stopwatch.StartNew();
@@ -110,13 +110,17 @@ namespace n1mm2web
                 HttpResponseMessage response;
                 try
                 {
-                    response = cli.PostAsJsonAsync("https://gp-dash.azurewebsites.net/api/contact", cr).Result;
+                    response = cli.PostAsJsonAsync($"https://gp-dash.azurewebsites.net/api/{controller}", cr).Result;
 
                     if (response.IsSuccessStatusCode)
                     {
                         Log(response.StatusCode.ToString());
                         break;
                     }
+
+                    var httpError = response.Content.ReadAsStringAsync();
+
+                
                 }
                 catch (Exception ex)
                 {
@@ -165,7 +169,7 @@ namespace n1mm2web
                 Log($"Could not resolve location for contact with {ci.Call}");
             }
 
-            PostObject(cr);
+            PostObject(cr, "contact");
         }
 
         static Dictionary<string, List<Match>> dict = JsonConvert.DeserializeObject<Dictionary<string, List<Match>>>(File.ReadAllText("dict.json"));
@@ -208,20 +212,12 @@ namespace n1mm2web
                     countryName = first.CountryName;
                     return true;
                 }
-                else
-                {
-                    lat = lon = 0;
-                    countryName = null;
-                    return false;
-                }
             }
-            else
-            {
-                lat = first.Latitude;
-                lon = first.Longitude;
-                countryName = first.CountryName;
-                return true;
-            }
+
+            lat = first.Latitude;
+            lon = first.Longitude;
+            countryName = first.CountryName;
+            return true;
         }
 
         private static bool ResolveBigCountry(string call, out double lati, out double longi)

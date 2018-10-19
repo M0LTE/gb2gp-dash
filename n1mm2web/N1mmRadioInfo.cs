@@ -6,7 +6,8 @@ using System.Xml.Serialization;
 
 namespace n1mm2web
 {
-    class N1mmRadioInfo
+    [XmlRoot(ElementName = "RadioInfo")]
+    public class N1mmRadioInfo
     {
         /// <summary>
         /// Computer name
@@ -62,7 +63,7 @@ namespace n1mm2web
             }
             catch (Exception ex)
             {
-                Program.Log("Exception: {0}", ex);
+                //Program.Log("Exception: {0}", ex);
                 ri = null;
                 return false;
             }
