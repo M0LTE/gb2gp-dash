@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +23,9 @@ namespace n1mm2web
 
         static void Main(string[] args)
         {
+            //ResolveLatLon("SM0F", out string cn, out double lat, out double lon);
+            //Debugger.Break();
+
             udpThread.Start();
             udpThread.Join();
         }
@@ -72,8 +76,12 @@ namespace n1mm2web
             if (N1mmRadioInfo.TryParse(msg, out N1mmRadioInfo ri))
             {
                 ProcessRadioInfo(ri);
+                return;
             }
-            else if (N1mmXmlContactInfo.TryParse(msg, out N1mmXmlContactInfo ci))
+
+            string dg = Encoding.UTF8.GetString(msg);
+
+            if (N1mmXmlContactInfo.TryParse(msg, out N1mmXmlContactInfo ci))
             {
                 ProcessContactAdd(ci);
                 writedg(msg);
@@ -90,6 +98,8 @@ namespace n1mm2web
 
         private static void ProcessRadioInfo(N1mmRadioInfo ri)
         {
+            Log($"{ri.StationName} {ri.Freq} {ri.TXFreq}");
+
             RadioState rs = new RadioState
             {
                 LastUpdated = DateTime.Now,
@@ -185,7 +195,9 @@ namespace n1mm2web
                 string key = call.Substring(0, i);
                 if (dict.TryGetValue(key, out List<Match> values))
                 {
-                    return values;
+                    var matches = values.Where(m => m.Flags != null && m.Flags.TreatAsExact != null && m.Flags.TreatAsExact.Value == false).ToList();
+
+                    return matches;
                 }
             }
 
