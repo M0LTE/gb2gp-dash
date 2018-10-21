@@ -23,7 +23,7 @@ namespace n1mm2web
 
         static void Main(string[] args)
         {
-            //ResolveLatLon("SM0F", out string cn, out double lat, out double lon);
+            //ResolveLatLon("VO1CAL", out string cn, out double lat, out double lon);
             //Debugger.Break();
 
             udpThread.Start();
@@ -147,27 +147,38 @@ namespace n1mm2web
 
         static void ProcessContactAdd(N1mmXmlContactInfo ci)
         {
+            if (Debugger.IsAttached)
+            {
+                if (ci.Call == "VO1CAL")
+                {
+                    Debugger.Break();
+                }
+            }
+
+            ProcessContactAdd1(ci.Rcv, ci.Snt, ci.Call, ci.Timestamp, ci.Mode, ci.Txfreq, ci.Radionr);
+        }
+
+        static void ProcessContactAdd1(string rcv, string snt, string call, string dt, string mode, string txf, string rnr)
+        {
             var cr = new RestContact
             {
                 ID = Guid.NewGuid(),
-                PinLat = 50.123,
-                PinLon = -3.456,
-                ReceivedReport = ci.Rcv,
-                SentReport = ci.Snt,
-                TheirCall = ci.Call,
+                ReceivedReport = rcv,
+                SentReport = snt,
+                TheirCall = call,
                 TheirGroup = null,
                 TheirLocation = null,
                 TheirOperator = null,
-                UtcTime = DateTime.Parse(ci.Timestamp, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal),
-                Mode = ci.Mode
+                UtcTime = DateTime.Parse(dt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal),
+                Mode = mode
             };
 
-            if (int.TryParse(ci.Txfreq, out int deciHz))
+            if (int.TryParse(txf, out int deciHz))
             {
                 cr.FreqMhz = deciHz / 100000.0;
             }
 
-            if (int.TryParse(ci.Radionr, out int radionr))
+            if (int.TryParse(rnr, out int radionr))
             {
                 cr.OurStation = radionr;
             }
@@ -180,7 +191,12 @@ namespace n1mm2web
             }
             else
             {
-                Log($"Could not resolve location for contact with {ci.Call}");
+                Log($"Could not resolve location for contact with {call}");
+            }
+
+            if (cr.PinLat == 0)
+            {
+                return;
             }
 
             PostObject(cr, "contact");
@@ -206,6 +222,16 @@ namespace n1mm2web
 
         private static bool ResolveLatLon(string call, out string countryName, out double lat, out double lon)
         {
+            if (ResolveBigCountry(call, out double lati, out double longi))
+            {
+                Log($"{call} {lati} {longi}");
+                lat = lati;
+                lon = longi;
+                //countryName = first.CountryName;
+                countryName = null;
+                return true;
+            }
+
             var matches = GetMatches(call);
 
             if (!matches.Any())
@@ -219,7 +245,7 @@ namespace n1mm2web
 
             string[] bigCountries = new[] { "United States", "European Russia", "Asiatic Russia", "China", "Australia", "Canada", "Brazil", "India", "Argentina", "United Kingdom", "England", "Wales", "Scotland", "Northern Ireland", "Ireland" };
 
-            if (bigCountries.Contains(first.CountryName))
+            /*if (bigCountries.Contains(first.CountryName))
             {
                 if (ResolveBigCountry(call, out double lati, out double longi))
                 {
@@ -228,7 +254,7 @@ namespace n1mm2web
                     countryName = first.CountryName;
                     return true;
                 }
-            }
+            }*/
 
             lat = first.Latitude;
             lon = first.Longitude;
@@ -290,6 +316,15 @@ namespace n1mm2web
 
         static void ProcessContactReplace(N1mmXmlContactReplace cr)
         {
+            if (Debugger.IsAttached)
+            {
+                if (cr.Call == "VO1CAL")
+                {
+                    Debugger.Break();
+                }
+            }
+
+            ProcessContactAdd1(cr.Rcv, cr.Snt, cr.Call, cr.Timestamp, cr.Mode, cr.Txfreq, cr.Radionr);
         }
 
         static object logLockObj = new object();

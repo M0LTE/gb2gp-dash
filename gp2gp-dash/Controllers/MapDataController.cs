@@ -25,7 +25,7 @@ namespace gp2gp_dash.Controllers
             using (var conn = DbService.GetOpenConnection())
             {
                 return new JsonResult(GeoJsonModel.FromLatLons(
-                    conn.Query("select pinLat, pinLon from contacts").Select(d => new LatLonPair(GP, new LatLon(d.pinLat, d.pinLon))
+                    conn.Query("select pinLat, pinLon from contacts where pinlat is not null and pinlon is not null;").Select(d => new LatLonPair(GP, new LatLon(d.pinLat, d.pinLon))
                 )));
             }
         }
