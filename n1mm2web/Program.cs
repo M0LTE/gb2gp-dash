@@ -21,6 +21,7 @@ namespace n1mm2web
     {
         static Thread udpThread = new Thread(new ThreadStart(UdpThread));
         static string url;
+        static int port = 12060;
 
         static void Main(string[] args)
         {
@@ -39,6 +40,13 @@ namespace n1mm2web
                 return;
             }
 
+            if (args.Length > 1)
+            {
+                port = int.Parse(args[1]);
+            }
+
+            Console.WriteLine($"Listening on port {port}");
+
             //ResolveLatLon("VO1CAL", out string cn, out double lat, out double lon);
             //Debugger.Break();
 
@@ -50,7 +58,7 @@ namespace n1mm2web
         {
             while (true)
             {
-                var listener = new UdpClient(new IPEndPoint(IPAddress.Any, 12060));
+                var listener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
 
                 while (true)
                 {
