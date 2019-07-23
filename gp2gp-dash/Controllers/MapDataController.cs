@@ -22,12 +22,15 @@ namespace gp2gp_dash.Controllers
         [HttpGet]
         public IActionResult GetData()
         {
-            using (var conn = DbService.GetOpenConnection())
-            {
-                return new JsonResult(GeoJsonModel.FromLatLons(
-                    conn.Query("select pinLat, pinLon from contacts where pinlat is not null and pinlon is not null;").Select(d => new LatLonPair(GP, new LatLon(d.pinLat, d.pinLon))
-                )));
-            }
+            var conn = DbService.GetOpenConnection();
+
+            var data = conn.Query("select pinLat, pinLon, theircall from contacts where pinlat is not null and pinlon is not null and theircall not in (select call from badcall);")
+                    .Select(d => new LatLonPair(GP, new LatLon((double)d.pinLat, (double)d.pinLon)))
+                    .ToArray();
+
+            return new JsonResult(GeoJsonModel.FromLatLons(
+                data
+            ));
         }
     }
 }

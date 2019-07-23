@@ -73,6 +73,11 @@
 
     public class LatLonPair
     {
+        public override string ToString()
+        {
+            return Start.ToString() + " / " + End.ToString();
+        }
+
         public LatLonPair(LatLon start, LatLon end)
         {
             this.Start = start;
@@ -85,6 +90,11 @@
 
     public class LatLon
     {
+        public override string ToString()
+        {
+            return $"{Longitude}, {Latitude}";
+        }
+
         /// <summary>
         /// 
         /// </summary>

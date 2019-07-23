@@ -18,11 +18,9 @@ namespace gp2gp_dash.Controllers
         [HttpPost]
         public void AddContact(ContactRow contactRow)
         {
-            using (var conn = dbService.GetOpenConnection())
-            {
-                conn.Execute("delete from contacts where theircall=@theircall and utctime=@utctime", contactRow);
-                conn.Execute("insert into contacts (id, utctime, theircall, ourstation, sentreport, receivedreport, pinlat, pinlon, theiroperator, theirgroup, theirlocation, freqMhz, mode, country) values (@id, @utctime, @theircall, @ourstation, @sentreport, @receivedreport, @pinlat, @pinlon, @theiroperator, @theirgroup, @theirlocation, @freqMhz, @mode, @country);", contactRow);
-            }
+            var conn = dbService.GetOpenConnection();
+            conn.Execute("delete from contacts where theircall=@theircall and utctime=@utctime", contactRow);
+            conn.Execute("insert into contacts (id, utctime, theircall, ourstation, sentreport, receivedreport, pinlat, pinlon, theiroperator, theirgroup, theirlocation, freqMhz, mode, country) values (@id, @utctime, @theircall, @ourstation, @sentreport, @receivedreport, @pinlat, @pinlon, @theiroperator, @theirgroup, @theirlocation, @freqMhz, @mode, @country);", contactRow);
         }
     }
 }

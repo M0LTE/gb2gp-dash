@@ -98,7 +98,7 @@ namespace n1mm2web
 
         private static void ProcessRadioInfo(N1mmRadioInfo ri)
         {
-            Log($"{ri.StationName} {ri.Freq} {ri.TXFreq}");
+            //Log($"{ri.StationName} {ri.Freq} {ri.TXFreq}");
 
             RadioState rs = new RadioState
             {
@@ -124,11 +124,14 @@ namespace n1mm2web
                 HttpResponseMessage response;
                 try
                 {
-                    response = cli.PostAsJsonAsync($"https://gp-dash.azurewebsites.net/api/{controller}", cr).Result;
+                    string url = "http://localhost:55229";
+                    //string url = "https://gp-dash.azurewebsites.net";
+
+                    response = cli.PostAsJsonAsync($"{url}/api/{controller}", cr).Result;
 
                     if (response.IsSuccessStatusCode)
                     {
-                        Log(response.StatusCode.ToString());
+                        //Log(response.StatusCode.ToString());
                         break;
                     }
 
