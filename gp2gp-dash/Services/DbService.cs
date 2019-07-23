@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,23 +18,11 @@ namespace gp2gp_dash.Services
 
     public class DbService : IDbService
     {
-        string cs;
+        readonly string databasePath;
 
         public DbService(IConfiguration config)
         {
-            //cs = config["connectionString"];
-            //string conString = ConfigurationExtensions.GetConnectionString(config, "DefaultConnection");
-            cs = config.GetConnectionString("DefaultConnection");
-
-            if (string.IsNullOrWhiteSpace(cs))
-            {
-                cs = config["DefaultConnection"];
-            }
-
-            if (string.IsNullOrWhiteSpace(cs))
-            {
-                cs = ConfigurationManager.AppSettings["DefaultConnection"];
-            }
+            databasePath = config.GetValue<string>("SqliteDb");
         }
 
         private static IDbConnection conn;
@@ -42,8 +31,31 @@ namespace gp2gp_dash.Services
         {
             if (conn == null)
             {
-                conn = new SQLiteConnection("Data Source=C:\\Users\\ARSAS\\Desktop\\gb2gp.db;");
+                string db;
+                if (Path.IsPathRooted(databasePath))
+                {
+                    db = databasePath;
+                }
+                else
+                {
+                    db = Path.Combine(Directory.GetCurrentDirectory(), databasePath);
+                }
+
+                Console.WriteLine($"Database location: {db}");
+
+                conn = new SQLiteConnection($"Data Source={db};");
+                bool exists = File.Exists(db);
                 conn.Open();
+
+                if (!exists)
+                {
+                    Console.WriteLine("Creating a new database");
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = "CREATE TABLE \"contacts\" ( \"id\" TEXT NOT NULL, \"pinLat\" NUMERIC, \"pinLon\" NUMERIC, \"utcTime\" TEXT, \"theirCall\" TEXT, \"ourStation\" INTEGER, \"sentReport\" TEXT, \"receivedReport\" TEXT, \"theiroperator\" TEXT, \"theirgroup\" TEXT, \"theirlocation\" TEXT, \"freqMhz\" NUMERIC, \"mode\" TEXT, \"country\" TEXT, PRIMARY KEY(\"id\") )";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "CREATE TABLE \"badcall\" ( \"call\" TEXT, PRIMARY KEY(\"call\") )";
+                    cmd.ExecuteNonQuery();
+                }
             }
 
             return conn;

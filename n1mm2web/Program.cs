@@ -20,9 +20,25 @@ namespace n1mm2web
     class Program
     {
         static Thread udpThread = new Thread(new ThreadStart(UdpThread));
+        static string url;
 
         static void Main(string[] args)
         {
+            const string error = "Need the URL of a gb2gp-dash instance";
+
+            if (!args.Any())
+            {
+                Console.WriteLine(error);
+                return;
+            }
+
+            url = args[0];
+            if (!url.StartsWith("http"))
+            {
+                Console.WriteLine(error);
+                return;
+            }
+
             //ResolveLatLon("VO1CAL", out string cn, out double lat, out double lon);
             //Debugger.Break();
 
@@ -124,20 +140,18 @@ namespace n1mm2web
                 HttpResponseMessage response;
                 try
                 {
-                    string url = "http://localhost:55229";
-                    //string url = "https://gp-dash.azurewebsites.net";
-
-                    response = cli.PostAsJsonAsync($"{url}/api/{controller}", cr).Result;
+                    string u = $"{url}/api/{controller}";
+                    Log($"POSTing to {u}:");
+                    response = cli.PostAsJsonAsync(u, cr).Result;
 
                     if (response.IsSuccessStatusCode)
                     {
-                        //Log(response.StatusCode.ToString());
+                        Log(response.StatusCode.ToString());
                         break;
                     }
 
-                    var httpError = response.Content.ReadAsStringAsync();
-
-                
+                    var httpError = response.Content.ReadAsStringAsync().Result;
+                    Log(httpError);
                 }
                 catch (Exception ex)
                 {
