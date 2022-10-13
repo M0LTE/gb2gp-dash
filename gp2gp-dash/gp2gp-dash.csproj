@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="gb2gp.db" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.CookiePolicy" Version="2.1.2" />
