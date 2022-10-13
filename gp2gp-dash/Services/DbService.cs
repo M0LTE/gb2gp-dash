@@ -27,41 +27,46 @@ namespace gp2gp_dash.Services
 
         private static IDbConnection conn;
 
+        private static object lockObj = new object();
+
         public IDbConnection GetOpenConnection()
         {
-            if (conn == null)
+            lock (lockObj)
             {
-                string db;
-                if (Path.IsPathRooted(databasePath))
+                if (conn == null)
                 {
-                    db = databasePath;
-                }
-                else
-                {
-                    db = Path.Combine(Directory.GetCurrentDirectory(), databasePath);
+                    string db;
+                    if (Path.IsPathRooted(databasePath))
+                    {
+                        db = databasePath;
+                    }
+                    else
+                    {
+                        db = Path.Combine(Directory.GetCurrentDirectory(), databasePath);
+                    }
+
+                    Console.WriteLine($"Database location: {db}");
+
+                    conn = new SQLiteConnection($"Data Source={db};");
+                    bool exists = File.Exists(db);
+                    conn.Open();
+
+                    if (!exists)
+                    {
+                        Console.WriteLine("Creating a new database");
+                        var cmd = conn.CreateCommand();
+                        cmd.CommandText = "CREATE TABLE \"contacts\" ( \"id\" TEXT NOT NULL, \"pinLat\" NUMERIC, \"pinLon\" NUMERIC, \"utcTime\" TEXT, \"theirCall\" TEXT, \"ourStation\" INTEGER, \"sentReport\" TEXT, \"receivedReport\" TEXT, \"theiroperator\" TEXT, \"theirgroup\" TEXT, \"theirlocation\" TEXT, \"freqMhz\" NUMERIC, \"mode\" TEXT, \"country\" TEXT, PRIMARY KEY(\"id\") )";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "CREATE TABLE \"badcall\" ( \"call\" TEXT, PRIMARY KEY(\"call\") )";
+                        cmd.ExecuteNonQuery();
+                    }
                 }
 
-                Console.WriteLine($"Database location: {db}");
+                return conn;
 
-                conn = new SQLiteConnection($"Data Source={db};");
-                bool exists = File.Exists(db);
-                conn.Open();
-
-                if (!exists)
-                {
-                    Console.WriteLine("Creating a new database");
-                    var cmd = conn.CreateCommand();
-                    cmd.CommandText = "CREATE TABLE \"contacts\" ( \"id\" TEXT NOT NULL, \"pinLat\" NUMERIC, \"pinLon\" NUMERIC, \"utcTime\" TEXT, \"theirCall\" TEXT, \"ourStation\" INTEGER, \"sentReport\" TEXT, \"receivedReport\" TEXT, \"theiroperator\" TEXT, \"theirgroup\" TEXT, \"theirlocation\" TEXT, \"freqMhz\" NUMERIC, \"mode\" TEXT, \"country\" TEXT, PRIMARY KEY(\"id\") )";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE \"badcall\" ( \"call\" TEXT, PRIMARY KEY(\"call\") )";
-                    cmd.ExecuteNonQuery();
-                }
+                /*var conn = new SqlConnection(cs);
+                return conn;*/
             }
-
-            return conn;
-
-            /*var conn = new SqlConnection(cs);
-            return conn;*/
         }
     }
 }
